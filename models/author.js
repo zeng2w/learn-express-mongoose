@@ -28,7 +28,28 @@ AuthorSchema
 });
 
 // Virtual for author's lifespan
-AuthorSchema.virtual('lifespan').get(function() {});
+AuthorSchema.virtual('lifespan').get(function() {
+  var lifespanString = '';
+
+  // Check if date_of_birth exists to avoid errors
+  if (this.date_of_birth) {
+    lifespanString += this.date_of_birth.getFullYear();
+  } else {
+    lifespanString += 'Unknown';
+  }
+
+  lifespanString += ' – ';
+
+  // Check if date_of_death exists to correctly format the lifespan string
+  if (this.date_of_death) {
+    lifespanString += this.date_of_death.getFullYear();
+  } else {
+    // If no date_of_death, leave it open-ended
+    lifespanString += '';
+  }
+
+  return lifespanString;
+});
 
 //Export model
 module.exports = mongoose.model('Author', AuthorSchema);
