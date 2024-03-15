@@ -38,6 +38,18 @@ app.get('/home', (_, res) => {
 
 app.get('/available', (_, res) => {
   BooksStatus.show_all_books_status(res);
+  Book.find({ status: 'available' }, 'title status -_id') // Assuming a 'status' field exists
+  .then(books => {
+    // Transforming the data to match the desired output
+    const availableBooks = books.map(book => ({
+      title: book.title,
+      status: book.status,
+    }));
+    res.json(availableBooks);
+  })
+  .catch(err => {
+    res.status(500).send({ message: err.message || "Some error occurred while retrieving books." });
+  });
 })
 
 app.get('/books', (_, res) => {
@@ -48,6 +60,17 @@ app.get('/books', (_, res) => {
 
 app.get('/authors', (_, res) => {
   Authors.show_all_authors(res);
+  Author.find({}, 'name birth death -_id')
+    .then(authors => {
+      const authorsWithLifespan = authors.map(author => {
+        const lifespan = author.death && author.birth ? (author.death.getFullYear() - author.birth.getFullYear()) : 'N/A';
+        return { name: author.name, lifespan: `${lifespan}` };
+      });
+      res.json(authorsWithLifespan);
+    })
+    .catch(err => {
+      res.status(500).send({ message: err.message || "Some error occurred while retrieving authors." });
+    });
 })
 
 app.get('/book_dtls', (req, res) => {
